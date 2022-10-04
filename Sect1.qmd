@@ -1,0 +1,35 @@
+---
+title: "Spatial Data with terra Workthrough"
+author: "Darrell A. Carvalho"
+format: html
+editor: visual
+---
+
+## Simple Representation of Spatial Data
+
+```{r data-setup}
+name <- LETTERS[1:10]
+longitude <- c(-116.7, -120.4, -116.7, -113.5, -115.5,
+               -120.8, -119.5, -113.7, -113.7, -110.7)
+latitude <- c(45.3, 42.6, 38.9, 42.1, 35.7, 38.9,
+              36.2, 39, 41.6, 36.9)
+stations <- cbind(longitude, latitude) # bind by columns
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r synthetic-rain-data}
+set.seed(0)
+precip <- round((runif(length(latitude))*10)^3)
+```
+
+```{r mapping}
+psize <- 1 + precip/500
+plot(stations, cex=psize, pch=20, col='red', main='Precipitation')
+# add names to plot
+text(stations, name, pos=4)
+# add a legend
+breaks <- c(100, 250, 500, 1000)
+legend.psize <- 1+breaks/500
+legend("topright", legend=breaks, pch=20, pt.cex=legend.psize, col='red', bg='gray')
+```
