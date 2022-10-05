@@ -5,7 +5,7 @@ format: html
 editor: visual
 ---
 
-## Simple Representation of Spatial Data
+# Simple Representation of Spatial Data
 
 ```{r data-setup}
 name <- LETTERS[1:10]
@@ -34,7 +34,7 @@ legend.psize <- 1+breaks/500
 legend("topright", legend=breaks, pch=20, pt.cex=legend.psize, col='red', bg='gray')
 ```
 
-**A Basic Demonstration of Overplotting Lines and Polygons**
+## **A Basic Demonstration of Overplotting Lines and Polygons**
 
 ```{r Second-Percipitation-Plot}
 lon <- c(-116.8, -114.2, -112.9, -111.9, -114.2, -115.4, -117.7)
@@ -62,3 +62,57 @@ wst
 ## 9     -113.7     41.6    I    289
 ## 10    -110.7     36.9    J    249
 ```
+
+## Vector Data in terra
+
+-   Data types are defined as classes
+
+    -   class definition allows for the development of methods to operate on data that share the same type
+
+`terra` prefixes its data classes with `Spat`
+
+-   Vector data is `SpatVector`
+-   has an extent
+-   includes potential coordinate reference system
+
+```{r SpatVector-Points-From-Scratch}
+library(terra)
+longitude <- c(-116.7, -120.4, -116.7, -113.5, -115.5, -120.8, -119.5, -113.7, -113.7, -110.7)
+latitude <- c(45.3, 42.6, 38.9, 42.1, 35.7, 38.9, 36.2, 39, 41.6, 36.9)
+
+lonlat <- cbind(longitude, latitude) # join coordinates
+
+pts <- vect(lonlat) # create point SpatVector
+
+class(pts) # check its class
+
+plot(pts) # plot it
+
+geom(pts)
+```
+
+A CRS can be provided as demonstrated here:
+
+```{r Assign-CRS}
+crdref <- "+proj=longlat +datum=WGS84"
+pts <- vect(lonlat, crs=crdref)
+pts
+```
+
+-   Check the CRS using `crs()`
+
+```{r}
+crs(pts)
+```
+
+```{r}
+# Generate random precipitation values, same quantity as points
+precipvalue <- runif(nrow(lonlat), min=0, max=100)
+df <- data.frame(ID=1:nrow(lonlat), precip=precipvalue)
+```
+
+```{r}
+ptv <- vect(lonlat, atts=df, crs=crdref)
+ptv
+```
+
