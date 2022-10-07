@@ -8,6 +8,7 @@ editor: visual
 # Simple Representation of Spatial Data
 
 ```{r data-setup}
+library(terra)
 name <- LETTERS[1:10]
 longitude <- c(-116.7, -120.4, -116.7, -113.5, -115.5,
                -120.8, -119.5, -113.7, -113.7, -110.7)
@@ -34,7 +35,7 @@ legend.psize <- 1+breaks/500
 legend("topright", legend=breaks, pch=20, pt.cex=legend.psize, col='red', bg='gray')
 ```
 
-## **A Basic Demonstration of Overplotting Lines and Polygons**
+## **A Basic Demonstration of Overplotting Lines and Polygons (`base r`**)
 
 ```{r Second-Percipitation-Plot}
 lon <- c(-116.8, -114.2, -112.9, -111.9, -114.2, -115.4, -117.7)
@@ -63,7 +64,7 @@ wst
 ## 10    -110.7     36.9    J    249
 ```
 
-## Vector Data in terra
+## Vector Data in `terra`
 
 -   Data types are defined as classes
 
@@ -72,8 +73,12 @@ wst
 `terra` prefixes its data classes with `Spat`
 
 -   Vector data is `SpatVector`
+
 -   has an extent
+
 -   includes potential coordinate reference system
+
+### Points
 
 ```{r SpatVector-Points-From-Scratch}
 library(terra)
@@ -101,18 +106,41 @@ pts
 
 -   Check the CRS using `crs()`
 
-```{r}
+```{r Check-CRS}
 crs(pts)
 ```
 
-```{r}
+```{r Percip-Values}
 # Generate random precipitation values, same quantity as points
 precipvalue <- runif(nrow(lonlat), min=0, max=100)
 df <- data.frame(ID=1:nrow(lonlat), precip=precipvalue)
 ```
 
-```{r}
+```{r Assign-dataframe-to-SpatVector}
 ptv <- vect(lonlat, atts=df, crs=crdref)
 ptv
 ```
 
+### Lines and Polygons
+
+```{r Defining-Lines}
+lon <- c(-116.8, -114.2, -112.9, -111.9, -114.2, -115.4, -117.7)
+lat <- c(41.3, 42.9, 42.4, 39.8, 37.6, 38.3, 37.6)
+lonlat <- cbind(id=1, part=1, lon, lat)
+
+lns <- vect(lonlat, type = "lines", crs=crdref)
+lns
+```
+
+```{r Polygons}
+pols <- vect(lonlat, type = "polygons", crs=crdref)
+pols
+```
+
+```{r Plotting-Polygons}
+plot(pols, las = 1)
+plot(pols, border = 'blue', col = 'yellow', lwd = 3, add = TRUE)
+points(pts, col = 'red', pch=20, cex=3)
+```
+
+## Raster Data in `terra`
