@@ -64,7 +64,7 @@ wst
 ## 10    -110.7     36.9    J    249
 ```
 
-## Vector Data in `terra`
+# Vector Data in `terra`
 
 -   Data types are defined as classes
 
@@ -78,7 +78,7 @@ wst
 
 -   includes potential coordinate reference system
 
-### Points
+## Points
 
 ```{r SpatVector-Points-From-Scratch}
 library(terra)
@@ -121,7 +121,7 @@ ptv <- vect(lonlat, atts=df, crs=crdref)
 ptv
 ```
 
-### Lines and Polygons
+## Lines and Polygons
 
 ```{r Defining-Lines}
 lon <- c(-116.8, -114.2, -112.9, -111.9, -114.2, -115.4, -117.7)
@@ -143,4 +143,134 @@ plot(pols, border = 'blue', col = 'yellow', lwd = 3, add = TRUE)
 points(pts, col = 'red', pch=20, cex=3)
 ```
 
-## Raster Data in `terra`
+# Raster Data in `terra`
+
+```{r Raster-setup}
+library(terra)
+```
+
+-   Rasters in `terra` are stored as class `SpatRaster`
+
+    -   Always includes:
+
+        -   Dimensionality (rows, columns)
+
+        -   Spatial extent
+
+        -   Coordinate Reference System
+
+    -   May store direction to file raster cell values are stored in
+
+    -   May instead store cell values in-memory
+
+```{r Raster-Geometry-from-Scratch}
+r <-rast(ncol=10, nrow=10, xmin=-150, xmax=-80, ymin=20, ymax=60)
+r
+```
+
+-   `r` above only has geometry; below, we associate values
+
+```{r Raster-Value-Assignment}
+values(r) <- runif(ncell(r))
+r
+```
+
+-   value overwrite and cell-numbering
+
+```{r Raster-Value-Reassignment}
+values(r) <- 1:ncell(r)
+r
+```
+
+```{r Plotting-terra-Rasters}
+plot(r)
+```
+
+-   Multi-layer/multi-band rasters can be created with `c()`
+
+```{r Multiband-Raster}
+r2 <- r*r
+r3 <- sqrt(r)
+s <- c(r, r2, r3)
+s
+plot(s)
+```
+
+# Reading and Writing Spatial Data in R
+
+## Reading Vectors
+
+```{r Reading-Vectors}
+library(terra)
+filename <- system.file("ex/lux.shp", package = "terra") # system.file to pull path
+
+basename(filename) #returns just the file name, removing the path
+
+s <- vect(filename) # import the file as a SpatVector file
+
+s
+```
+
+## Writing Vectors
+
+```{r Writing-Vectors}
+outfile <- "shape_test.shp" # create a variable to export
+writeVector(s, outfile, overwrite=TRUE) # store from memory to exported file
+```
+
+## Deleting File(s)
+
+```{r Deleting-Vectors}
+## CAUTION ##
+ff <- list.files(patt = "^shape_test") # store all files matching the pattern
+file.remove(ff) # delete all stored files
+```
+
+## Reading Rasters
+
+```{r Raster-Reading}
+f <- system.file("ex/logo.tif", package = "terra") # store file path
+basename(f) # identify file name
+
+r <- rast(f) # store raster file
+
+r2 <- r[[2]] # subset raster layer 2
+```
+
+## Writing Rasters
+
+```{r Raster-Writing}
+x <- writeRaster(r, "test_output.tif", overwrite=TRUE) # write raster to file
+# it is written to file and linked through variable x
+
+
+## 
+ff <- list.files(patt = "^test_output")
+file.remove(ff)
+```
+
+# Coordinate Reference Systems (CRS)
+
+-   Notation of CRS is usually in Proj.4 (depreciating), EPSG code, or Well-Known Text (WKT) format
+
+```{r Retrieve-CRS}
+library(terra)
+f <- system.file("ex/lux.shp", package="terra") # point to file
+p <- vect(f) # import file
+p # check the data
+crs(p) # check the CRS definition
+```
+
+```{r Assign-CRS}
+pp <- p # assign to a new variable to preserve original
+crs(pp) <- "" # assign empty CRS
+crs(pp) # verify empty CRS
+crs(pp) <- "+proj=longlat +datum=WGS84" # assign the correct CRS
+crs(pp) # verify correct CRS was applied
+```
+
+```{r Transform-CRS}
+newcrs <- "+proj=robin +datum=WGS84" # store prefered proj string
+rob <- terra::project(p, newcrs) # reproject p using the new CRS
+rob
+```
