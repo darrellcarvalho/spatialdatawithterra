@@ -253,6 +253,8 @@ file.remove(ff)
 
 -   Notation of CRS is usually in Proj.4 (depreciating), EPSG code, or Well-Known Text (WKT) format
 
+## Working with Vector CRS
+
 ```{r Retrieve-CRS}
 library(terra)
 f <- system.file("ex/lux.shp", package="terra") # point to file
@@ -274,3 +276,42 @@ newcrs <- "+proj=robin +datum=WGS84" # store prefered proj string
 rob <- terra::project(p, newcrs) # reproject p using the new CRS
 rob
 ```
+
+```{r Backtransform-CRS}
+p2 <- terra:project(rob, "+proj=longlat +datum=WGS84")
+```
+
+## Working with Raster CRS
+
+-   Transforming rasters not as simple as transforming vectors
+
+    -   rasters need to account for each cell, either computing new values or
+
+```{r Raster-Setup}
+r <- rast(xmin=-110, xmax=-90, ymin=40, ymax=60, ncols=40, nrows=40) # demo raster
+values(r) <- 1:ncell(r) # assign values
+r # check
+plot(r)
+
+```
+
+-   Generally, don't project rasters - reproject vectors to conform to rasters.
+
+-   The below demonstration works, but is undesirable
+
+```{r Raster-Projection}
+pr1 <- terra::project(r, newcrs) # how to project; generally not advised
+crs(pr1) # determine the CRS of the projected raster
+plot(pr1)
+```
+
+-   Instead, create a SpatRaster to project the data onto
+
+    ```{r Raster-Processing}
+    x <- rast(pr1) # define a new raster
+    res(x) <- 200000 # assign new resolution
+    plot(x) # plot the empty SpatRast
+    pr3 <- terra::project(r, x) # reproject based on the Spatrast
+    pr3
+    plot(pr3)
+    ```
