@@ -360,3 +360,19 @@ p$lets <- NULL # remove variable
 ```
 
 ## Table Merges
+
+```{r Table-Merge-Demo}
+## Create a data.frame to be merged
+dfr <- data.frame(District=p$NAME_1, Canton=p$NAME_2, Value=round(runif(length(p), 100, 1000)))
+
+## Sort the dataframe
+dfr <- dfr[order(dfr$Canton), ]
+
+# merge the data frame to the SpatVector 
+pm <- merge(p, dfr,
+            by.x=c("NAME_1", "NAME_2"), # columns matched to dfr columns for merge
+            by.y=c('District', 'Canton')) # columns matched to p columns for merge
+pm # sanity check
+```
+
+## Record Selection
