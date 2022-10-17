@@ -278,7 +278,7 @@ rob
 ```
 
 ```{r Backtransform-CRS}
-p2 <- terra:project(rob, "+proj=longlat +datum=WGS84")
+p2 <- terra::project(rob, "+proj=longlat +datum=WGS84")
 ```
 
 ## Working with Raster CRS
@@ -315,3 +315,48 @@ plot(pr1)
     pr3
     plot(pr3)
     ```
+
+# Vector Data Manipulation in `terra`
+
+```{r Intro-Demonstration}
+library(terra)
+f <- system.file("ex/lux.shp", package="terra")
+p <- vect(f)
+p
+plot(p, "NAME_2")
+```
+
+## Geometries and Attributes
+
+```{r Extract-Attributes-from-SpatVector}
+d <- as.data.frame(p)
+head(d)
+
+```
+
+```{r Extract-Geometry-from-SpatVector}
+## As a Matrix
+g <- geom(p)
+
+## As WKT
+g <- geom(p, wkt = TRUE)
+```
+
+## Variables
+
+```{r Variable-Extraction}
+# functions similar to standard data.frames
+p$NAME_2 # returns a vector of values
+
+# subset with bracket notation p[, "NAME_2"]
+p[, 1:4]
+```
+
+```{r Variable-Creation}
+set.seed(0)
+p$lets <- sample(letters, nrow(p)) # assign a sampled letter to each column
+p$lets <- sample(LETTERS, nrow(p)) # re-assign new values
+p$lets <- NULL # remove variable
+```
+
+## Table Merges
